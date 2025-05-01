@@ -3,14 +3,20 @@
         <h2 class="text-xl font-bold mb-4">Login</h2>
         <form @submit.prevent="handleLogin">
             <input v-model="email" type="email" placeholder="Email" class="input" />
+            <div v-if="errors?.email">
+                <span v-for="error in errors?.email" :key="error" class="error">{{ error }}</span>
+            </div>
             <input v-model="password" type="password" placeholder="Password" class="input" />
+            <div v-if="errors?.password">
+                <span v-for="error in errors?.password" :key="error" class="error">{{ error }}</span>
+            </div>
             <button type="submit" class="btn">Login</button>
         </form>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../store/auth'
 import api from '../../api/axios'
@@ -19,6 +25,7 @@ const email = ref('')
 const password = ref('')
 const router = useRouter()
 const auth = useAuthStore()
+const errors = reactive({})
 
 const handleLogin = async () => {
     try {
@@ -38,9 +45,8 @@ const handleLogin = async () => {
                 router.push('/admin')
             }
         }).catch((error) => {
-            console.log(error)
-            // console.log(error.response.data.message)
-            // alert(error.response.data.message)
+            Object.assign(errors, error?.response?.data?.errors);
+            alert(error?.response?.data?.message || 'Login failed. Please try again.');
         })
 
     } catch (err) {
@@ -68,5 +74,12 @@ const handleLogin = async () => {
     color: #fff;
     border: none;
     cursor: pointer;
+}
+.btn:hover {
+    background: #555;
+}
+.error {
+    color: red;
+    font-size: 12px;
 }
 </style>

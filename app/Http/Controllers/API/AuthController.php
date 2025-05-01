@@ -48,7 +48,7 @@ class AuthController extends Controller
         } catch (ValidationException $e) {
             DB::rollBack();
             return $this->errorResponse(
-                $this->responseMessage('Post', 'validation'),
+                $this->responseMessage('Registration', 'validation'),
                 $e->validator->errors()->messages()
             );
         } catch (\Exception $e) {
@@ -80,6 +80,12 @@ class AuthController extends Controller
                 'user' => $user->load('roles'),
             ];
             return $this->successResponse('Login successful.', $credential);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return $this->errorResponse(
+                $this->responseMessage('Login', 'validation'),
+                $e->validator->errors()->messages()
+            );
         } catch (\Exception $e) {
             return $this->errorResponse('Login failed. ' . $e->getMessage() . '.', [], 500);
         }
